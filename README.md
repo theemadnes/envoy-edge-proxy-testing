@@ -5,9 +5,7 @@ Comparison of different Envoy proxy implementations on GKE
 
 using public nodes to simplify grabbing external images, in the `default` VPC
 
-> note: using GKE Standard instead of GKE Autopilot because Envoy Gateway installation puked when using Autopilot (at least using the default installation process via YAML)
-
-> note 2: generating these gcloud commands via Pantheon still doesn't include the Gateway API enablement selection once it's been selected
+> note: generating these gcloud commands via Pantheon still doesn't include the Gateway API enablement selection once it's been selected
 ```
 export PROJECT=spanner-reporter-01 # replace with your own project
 
@@ -49,10 +47,82 @@ kubectl --context=gke-managed-alb-std apply -k whereami-frontend/variant
 
 using https://gateway.envoyproxy.io/docs/install/install-yaml/
 
+note the `--force-conflicts` flag because otherwise:
 ```
-kubectl --context=gke-envoy-gateway-std apply --server-side -f https://github.com/envoyproxy/gateway/releases/download/v1.1.0/install.yaml
+Apply failed with 4 conflicts: conflicts with "kube-addon-manager":
+- .metadata.annotations.api-approved.kubernetes.io
+- .metadata.annotations.gateway.networking.k8s.io/bundle-version
+- .metadata.annotations.gateway.networking.k8s.io/channel
+- .spec.versions
+Please review the fields above--they currently have other managers. Here
+are the ways you can resolve this warning:
+* If you intend to manage all of these fields, please re-run the apply
+  command with the `--force-conflicts` flag.
+* If you do not intend to manage all of the fields, please edit your
+  manifest to remove references to the fields that should keep their
+  current managers.
+* You may co-own fields by updating your manifest to match the existing
+  value; in this case, you'll become the manager if the other manager(s)
+  stop managing the field (remove it from their configuration).
+See https://kubernetes.io/docs/reference/using-api/server-side-apply/#conflicts
+Apply failed with 4 conflicts: conflicts with "kube-addon-manager":
+- .metadata.annotations.api-approved.kubernetes.io
+- .metadata.annotations.gateway.networking.k8s.io/bundle-version
+- .metadata.annotations.gateway.networking.k8s.io/channel
+- .spec.versions
+Please review the fields above--they currently have other managers. Here
+are the ways you can resolve this warning:
+* If you intend to manage all of these fields, please re-run the apply
+  command with the `--force-conflicts` flag.
+* If you do not intend to manage all of the fields, please edit your
+  manifest to remove references to the fields that should keep their
+  current managers.
+* You may co-own fields by updating your manifest to match the existing
+  value; in this case, you'll become the manager if the other manager(s)
+  stop managing the field (remove it from their configuration).
+See https://kubernetes.io/docs/reference/using-api/server-side-apply/#conflicts
+Apply failed with 4 conflicts: conflicts with "kube-addon-manager":
+- .metadata.annotations.api-approved.kubernetes.io
+- .metadata.annotations.gateway.networking.k8s.io/bundle-version
+- .metadata.annotations.gateway.networking.k8s.io/channel
+- .spec.versions
+Please review the fields above--they currently have other managers. Here
+are the ways you can resolve this warning:
+* If you intend to manage all of these fields, please re-run the apply
+  command with the `--force-conflicts` flag.
+* If you do not intend to manage all of the fields, please edit your
+  manifest to remove references to the fields that should keep their
+  current managers.
+* You may co-own fields by updating your manifest to match the existing
+  value; in this case, you'll become the manager if the other manager(s)
+  stop managing the field (remove it from their configuration).
+See https://kubernetes.io/docs/reference/using-api/server-side-apply/#conflicts
+Apply failed with 4 conflicts: conflicts with "kube-addon-manager":
+- .metadata.annotations.api-approved.kubernetes.io
+- .metadata.annotations.gateway.networking.k8s.io/bundle-version
+- .metadata.annotations.gateway.networking.k8s.io/channel
+- .spec.versions
+Please review the fields above--they currently have other managers. Here
+are the ways you can resolve this warning:
+* If you intend to manage all of these fields, please re-run the apply
+  command with the `--force-conflicts` flag.
+* If you do not intend to manage all of the fields, please edit your
+  manifest to remove references to the fields that should keep their
+  current managers.
+* You may co-own fields by updating your manifest to match the existing
+  value; in this case, you'll become the manager if the other manager(s)
+  stop managing the field (remove it from their configuration).
+See https://kubernetes.io/docs/reference/using-api/server-side-apply/#conflicts
+```
+
+```
+kubectl --context=gke-envoy-gateway-std apply --server-side -f https://github.com/envoyproxy/gateway/releases/download/v1.1.0/install.yaml --force-conflicts
 
 # install egctl (command line tool for additional functionality)
 brew install egctl # my workstation has homebrew
+
+# verify EG is installed correctly
+kubectl wait --timeout=5m -n envoy-gateway-system deployment/envoy-gateway --for=condition=Available
+
 
 ```

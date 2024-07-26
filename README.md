@@ -122,7 +122,26 @@ kubectl --context=gke-envoy-gateway-std apply --server-side -f https://github.co
 brew install egctl # my workstation has homebrew
 
 # verify EG is installed correctly
-kubectl wait --timeout=5m -n envoy-gateway-system deployment/envoy-gateway --for=condition=Available
+kubectl --context=gke-envoy-gateway-std wait --timeout=5m -n envoy-gateway-system deployment/envoy-gateway --for=condition=Available
 
+# install the EG sample app 
+kubectl --context=gke-envoy-gateway-std apply -f https://github.com/envoyproxy/gateway/releases/download/v1.1.0/quickstart.yaml -n default
 
+# get gatewayclasses to see the new `eg` class is installed
+kubectl get gatewayclasses
+
+# test by calling the sample app
+export GATEWAY_HOST=$(kubectl --context=gke-envoy-gateway-std get gateway/eg -o jsonpath='{.status.addresses[0].value}')
+
+curl --verbose --header "Host: www.example.com" http://$GATEWAY_HOST/get
+```
+
+### set up EG to use our sample app
+
+```
+kubectl --context=gke-envoy-gateway-std apply -f eg/
+
+# wait a few moments for the new gateway to get an IP, and then....
+export EG_HOST=$(kubectl --context=gke-envoy-gateway-std -n frontend get gateway/eg -o jsonpath='{.status.addresses[0].value}')
+curl --verbose --header "Host: www.example.com" http://$EG_HOST/
 ```

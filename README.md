@@ -3,9 +3,9 @@ Comparison of different Envoy proxy implementations on GKE
 
 ### deploy clusters
 
-using public nodes to simplify grabbing external images
+using public nodes to simplify grabbing external images, in the `default` VPC
 
-> note: using GKE Standard instead of GKE Autopilot because Envoy Gateway installation puked when using Autopilot
+> note: using GKE Standard instead of GKE Autopilot because Envoy Gateway installation puked when using Autopilot (at least using the default installation process via YAML)
 
 > note 2: generating these gcloud commands via Pantheon still doesn't include the Gateway API enablement selection once it's been selected
 ```
@@ -51,5 +51,8 @@ using https://gateway.envoyproxy.io/docs/install/install-yaml/
 
 ```
 kubectl --context=gke-envoy-gateway-std apply --server-side -f https://github.com/envoyproxy/gateway/releases/download/v1.1.0/install.yaml
+
+# install egctl (command line tool for additional functionality)
+brew install egctl # my workstation has homebrew
 
 ```
